@@ -36,6 +36,14 @@ int RpcChannel::startConnect(){
         return -1;
     }
 
+    // 对已连接 fd 禁用 Nagle
+	int opt = 1;
+	if(setsockopt(fd_, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt)) == -1){
+		perror("setsockopt TCP_NODELAY");
+		close(fd_);
+		return -1;
+	}
+
     if(setNonBlock(fd_) == -1){
         perror("setNonBlock():");
         close(fd_);

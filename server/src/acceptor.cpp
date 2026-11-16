@@ -100,6 +100,15 @@ int Acceptor::handleRead(){
 				close(clientfd);
 				return -1;
 			}
+
+			// 对已连接 fd 禁用 Nagle
+			int opt = 1;
+			if(setsockopt(clientfd, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt)) == -1){
+				perror("setsockopt TCP_NODELAY");
+				close(clientfd);
+				return -1;
+			}
+
 			std::cout << "Connection:" << clientfd << std::endl;
 			if(newConnectionCallback_) newConnectionCallback_(clientfd);
 		}
