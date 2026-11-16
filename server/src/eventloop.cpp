@@ -37,7 +37,7 @@ void EventLoop::loop(){
 
 	std::vector<std::function<void()>> local_;
 
-	while(running_){
+	while(running_.load(std::memory_order_acquire)){
 		
 		//先清理一次 [锁内交换，锁外执行]！！！
 		{
@@ -91,7 +91,8 @@ void EventLoop::loop(){
 	终止循环
 */
 bool EventLoop::quit(){
-	running_ = false;
+	//running_ = false;
+	running_.store(false, std::memory_order_release);
 
 	uint64_t one = 1;
 	ssize_t n = write(eventfd_, &one, sizeof(one));
@@ -100,7 +101,7 @@ bool EventLoop::quit(){
 		return false;
 	}
 
-	return !running_;
+	return !running_.load(std::memory_order_acquire);
 }
 
 void EventLoop::runInLoop(std::function<void()> task){

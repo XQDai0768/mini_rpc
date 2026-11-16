@@ -58,7 +58,7 @@ int Acceptor::listen(){
 	}
 
 	//6.listen
-	if(::listen(listenfd_, 5) == -1){//遮蔽
+	if(::listen(listenfd_, SOMAXCONN) == -1){//遮蔽
 		perror("listen:");
 		return -1;
 	}
